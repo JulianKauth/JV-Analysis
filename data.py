@@ -117,24 +117,26 @@ def combine_jv_curves(cell_1: Data2D, cell_2: Data2D):
 
 """calculate the current of each cell"""
 cell_size = 0.1e-4  # m^2 to 0.1cm^2
+square_meter_to_square_centimeter = 1e-4
 ampere_to_milli_ampere = 1000  # to convert from Ampere to milli ampere
+to_percent = 0.01
 
 # solar_spectrum = Data2D(*read_csv("sun_spectrum_direct_circumsolar.csv"))
 solar_spectrum = Data2D(*read_csv("sun_spectrum_global_tilt.csv"))
 solar_spectrum_converted = solar_energy_to_photon_count_to_charge(solar_spectrum)
 
-eqe_bottom_cell = Data2D(*read_csv("eqe-kp115idtbr.csv"))
-bottom_cell_current = multiply_eqe_to_solar_spectrum(eqe_bottom_cell, solar_spectrum_converted) * cell_size * ampere_to_milli_ampere
+eqe_bottom_cell = Data2D(*read_csv("eqe-kp115idtbr.csv")) * to_percent
+bottom_cell_current = multiply_eqe_to_solar_spectrum(eqe_bottom_cell, solar_spectrum_converted) * square_meter_to_square_centimeter * ampere_to_milli_ampere
 bottom_cell_current_integrated = bottom_cell_current.integrate()
 print(f"{bottom_cell_current_integrated=}")
 
-eqe_bottom_cell_filtered = Data2D(*read_csv("eqe-kp115idtbr-filtered.csv"))
-bottom_cell_filtered_current = multiply_eqe_to_solar_spectrum(eqe_bottom_cell_filtered, solar_spectrum_converted) * cell_size * ampere_to_milli_ampere
+eqe_bottom_cell_filtered = Data2D(*read_csv("eqe-kp115idtbr-filtered.csv")) * to_percent
+bottom_cell_filtered_current = multiply_eqe_to_solar_spectrum(eqe_bottom_cell_filtered, solar_spectrum_converted) * square_meter_to_square_centimeter * ampere_to_milli_ampere
 bottom_cell_filtered_current_integrated = bottom_cell_filtered_current.integrate()
 print(f"{bottom_cell_filtered_current_integrated=}")
 
-eqe_top_cell = Data2D(*read_csv("eqe-p3htpcbm.csv"))
-top_cell_current = multiply_eqe_to_solar_spectrum(eqe_top_cell, solar_spectrum_converted) * cell_size * ampere_to_milli_ampere
+eqe_top_cell = Data2D(*read_csv("eqe-p3htpcbm.csv")) * to_percent
+top_cell_current = multiply_eqe_to_solar_spectrum(eqe_top_cell, solar_spectrum_converted) * square_meter_to_square_centimeter * ampere_to_milli_ampere
 top_cell_current_integrated = top_cell_current.integrate()
 print(f"{top_cell_current_integrated=}")
 
