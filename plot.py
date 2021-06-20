@@ -93,7 +93,9 @@ def plot_jv_separate():
     plt.title("JV-Curves")
     plt.plot(*jv_bottom_cell.plot_data, label="Bottom Cell")
     plt.plot(*jv_bottom_cell_filtered.plot_data, label="Bottom Cell (filtered)")
+    plt.plot(*jv_bottom_cell_corrected.plot_data, label="Bottom Cell (filtered, corrected)")
     plt.plot(*jv_top_cell.plot_data, label="Top Cell")
+    plt.plot(*jv_top_cell_corrected.plot_data, label="Top Cell (corrected)")
     plt.legend()
 
     plt.show()
@@ -109,8 +111,11 @@ def plot_jv_combined():
     plt.ylim(-15, 5)
     plt.title("JV-Curves combined")
     plt.plot(*jv_combined.plot_data, label="Combined")
+    plt.plot(*jv_combined_corrected.plot_data, label="Combined (corrected)")
     plt.plot(*jv_bottom_cell_filtered.plot_data, label="Bottom Cell (filtered)")
+    plt.plot(*jv_bottom_cell_corrected.plot_data, label="Bottom Cell (filtered, corrected)")
     plt.plot(*jv_top_cell.plot_data, label="Top Cell")
+    plt.plot(*jv_top_cell_corrected.plot_data, label="Top Cell (corrected)")
     plt.legend()
 
     plt.show()

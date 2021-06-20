@@ -119,7 +119,8 @@ def combine_jv_curves(cell_1: Data2D, cell_2: Data2D):
 cell_size = 0.1e-4  # m^2 to 0.1cm^2
 ampere_to_milli_ampere = 1000  # to convert from Ampere to milli ampere
 
-solar_spectrum = Data2D(*read_csv("sun_spectrum_direct_circumsolar.csv"))
+# solar_spectrum = Data2D(*read_csv("sun_spectrum_direct_circumsolar.csv"))
+solar_spectrum = Data2D(*read_csv("sun_spectrum_global_tilt.csv"))
 solar_spectrum_converted = solar_energy_to_photon_count_to_charge(solar_spectrum)
 
 eqe_bottom_cell = Data2D(*read_csv("eqe-kp115idtbr.csv"))
@@ -152,6 +153,9 @@ print(f"{bottom_cell_current_scaled.integrate()=}")
 
 """get and sum JV curves"""
 jv_top_cell = Data2D(*read_csv("jv-p3htpcbm.csv"))
+jv_top_cell_corrected = jv_top_cell * correction_factor
 jv_bottom_cell = Data2D(*read_csv("jv-kp115idtbr.csv"))
 jv_bottom_cell_filtered = Data2D(*read_csv("jv-kp115idtbr-filtered.csv"))
+jv_bottom_cell_corrected = jv_bottom_cell_filtered + (jv_bottom_cell - jv_bottom_cell_filtered) * (1 - correction_factor)
 jv_combined = combine_jv_curves(jv_bottom_cell_filtered, jv_top_cell)
+jv_combined_corrected = combine_jv_curves(jv_bottom_cell_corrected, jv_top_cell_corrected)
