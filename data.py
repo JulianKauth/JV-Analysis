@@ -47,28 +47,52 @@ class Data2D:
         return self.x, self.y
 
     def __imul__(self, other):
-        """multiply the y values with the given value"""
-        self.y = [y * other for y in self.y]
+        if isinstance(other, Data2D):
+            # get the overlapping range:
+            x_min, x_max = max(self.x[0], other.x[0]), min(self.x[-1], other.x[-1])
+            xs = [x for x in sorted(self.x + other.x) if x_min < x < x_max]
+            ys = [self.get_y_at(x) * other.get_y_at(x) for x in xs]
+            self.x, self.y = xs, ys
+        else:
+            self.y = [y * other for y in self.y]
         return self
 
     def __mul__(self, other):
-        return Data2D(self.x, [y * other for y in self.y])
-
-    def __sub__(self, other):
-        y = [s_y - other.get_y_at(s_x) for s_x, s_y in self.data]
-        return Data2D(self.x, y)
+        re = Data2D(self.x, self.y)
+        re *= other
+        return re
 
     def __isub__(self, other):
-        self.y = [s_y - other.get_y_at(s_x) for s_x, s_y in self.data]
+        if isinstance(other, Data2D):
+            # get the overlapping range:
+            x_min, x_max = max(self.x[0], other.x[0]), min(self.x[-1], other.x[-1])
+            xs = [x for x in sorted(self.x + other.x) if x_min < x < x_max]
+            ys = [self.get_y_at(x) - other.get_y_at(x) for x in xs]
+            self.x, self.y = xs, ys
+        else:
+            self.y = [y - other for y in self.y]
+        return self
+
+    def __sub__(self, other):
+        re = Data2D(self.x, self.y)
+        re -= other
+        return re
+
+    def __iadd__(self, other):
+        if isinstance(other, Data2D):
+            # get the overlapping range:
+            x_min, x_max = max(self.x[0], other.x[0]), min(self.x[-1], other.x[-1])
+            xs = [x for x in sorted(list(self.x) + list(other.x)) if x_min < x < x_max]
+            ys = [self.get_y_at(x) + other.get_y_at(x) for x in xs]
+            self.x, self.y = xs, ys
+        else:
+            self.y = [y + other for y in self.y]
         return self
 
     def __add__(self, other):
-        y = [s_y + other.get_y_at(s_x) for s_x, s_y in self.data]
-        return Data2D(self.x, y)
-
-    def __iadd__(self, other):
-        self.y = [s_y + other.get_y_at(s_x) for s_x, s_y in self.data]
-        return self
+        re = Data2D(self.x, self.y)
+        re += other
+        return re
 
     def __eq__(self, other):
         eps = 1e-16  # max allowed difference
@@ -106,13 +130,19 @@ def solar_energy_to_photon_count_to_charge(solar_power: Data2D):
 
 
 def multiply_eqe_to_solar_spectrum(cell: Data2D, sun: Data2D):
-    y = [sun_y * cell.get_y_at(sun_x) for sun_x, sun_y in sun.data]
-    return Data2D(sun.x, y)
+    return cell * sun
+    # y = [sun_y * cell.get_y_at(sun_x) for sun_x, sun_y in sun.data]
+    # return Data2D(sun.x, y)
 
 
-def combine_jv_curves(cell_1: Data2D, cell_2: Data2D):
-    x = [x1 + cell_2.get_x_at(y1) for x1, y1 in cell_1.data]
-    return Data2D(x, cell_1.y)
+def combine_jv_curves(c1: Data2D, c2: Data2D):
+    # get the overlapping range:
+    summe = Data2D(c1.y, c1.x) + Data2D(c2.y, c2.x)
+    return Data2D(summe.y, summe.x)
+    # y_min, y_max = max(c1.x[0], c2.x[0]), min(c1.x[-1], c2.x[-1])
+    # ys = [y for y in sorted(c1.y + c2.y) if y_min < y < y_max]
+    # xs = [c1.get_x_at(y) + c2.get_x_at(y) for y in ys]
+    # return Data2D(xs, ys)
 
 
 """calculate the current of each cell"""
