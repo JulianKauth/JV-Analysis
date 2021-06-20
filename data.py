@@ -6,7 +6,7 @@ class Data2D:
     @staticmethod
     def get_value_at(x, y, searched_x):
         # if we don't span this range, return 0
-        if not x[0] < searched_x < x[-1]:
+        if not x[0] <= searched_x <= x[-1]:
             return 0
         # if we have the element, return it
         if searched_x in x:
@@ -30,12 +30,10 @@ class Data2D:
 
     def integrate(self):
         summe = 0
-        for i in range(1, len(self.x) - 1):
-            prev_x = self.x[i - 1]
-            next_x = self.x[i + 1]
-
-            width = (next_x - prev_x) / 2
-            summe += width * self.y[i]
+        for i in range(0, len(self.x) - 1):
+            width = (self.x[i+1] - self.x[i])
+            height = (self.y[i+1] + self.y[i]) / 2
+            summe += width * height
         return summe
 
     @property
