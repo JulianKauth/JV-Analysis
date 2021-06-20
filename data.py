@@ -31,8 +31,8 @@ class Data2D:
     def integrate(self):
         summe = 0
         for i in range(0, len(self.x) - 1):
-            width = (self.x[i+1] - self.x[i])
-            height = (self.y[i+1] + self.y[i]) / 2
+            width = (self.x[i + 1] - self.x[i])
+            height = (self.y[i + 1] + self.y[i]) / 2
             summe += width * height
         return summe
 
@@ -48,7 +48,7 @@ class Data2D:
         if isinstance(other, Data2D):
             # get the overlapping range:
             x_min, x_max = max(self.x[0], other.x[0]), min(self.x[-1], other.x[-1])
-            xs = [x for x in sorted(self.x + other.x) if x_min < x < x_max]
+            xs = [x for x in sorted(self.x + other.x) if x_min <= x <= x_max]
             ys = [self.get_y_at(x) * other.get_y_at(x) for x in xs]
             self.x, self.y = xs, ys
         else:
@@ -64,7 +64,7 @@ class Data2D:
         if isinstance(other, Data2D):
             # get the overlapping range:
             x_min, x_max = max(self.x[0], other.x[0]), min(self.x[-1], other.x[-1])
-            xs = [x for x in sorted(self.x + other.x) if x_min < x < x_max]
+            xs = [x for x in sorted(self.x + other.x) if x_min <= x <= x_max]
             ys = [self.get_y_at(x) - other.get_y_at(x) for x in xs]
             self.x, self.y = xs, ys
         else:
@@ -80,7 +80,7 @@ class Data2D:
         if isinstance(other, Data2D):
             # get the overlapping range:
             x_min, x_max = max(self.x[0], other.x[0]), min(self.x[-1], other.x[-1])
-            xs = [x for x in sorted(list(self.x) + list(other.x)) if x_min < x < x_max]
+            xs = [x for x in sorted(list(self.x) + list(other.x)) if x_min <= x <= x_max]
             ys = [self.get_y_at(x) + other.get_y_at(x) for x in xs]
             self.x, self.y = xs, ys
         else:
@@ -129,18 +129,16 @@ def solar_energy_to_photon_count_to_charge(solar_power: Data2D):
 
 def multiply_eqe_to_solar_spectrum(cell: Data2D, sun: Data2D):
     return cell * sun
-    # y = [sun_y * cell.get_y_at(sun_x) for sun_x, sun_y in sun.data]
-    # return Data2D(sun.x, y)
 
 
 def combine_jv_curves(c1: Data2D, c2: Data2D):
-    # get the overlapping range:
     summe = Data2D(c1.y, c1.x) + Data2D(c2.y, c2.x)
     return Data2D(summe.y, summe.x)
-    # y_min, y_max = max(c1.x[0], c2.x[0]), min(c1.x[-1], c2.x[-1])
-    # ys = [y for y in sorted(c1.y + c2.y) if y_min < y < y_max]
-    # xs = [c1.get_x_at(y) + c2.get_x_at(y) for y in ys]
-    # return Data2D(xs, ys)
+
+
+def jv_to_power(cell):
+    voltage_unity_curve = Data2D(cell.x, cell.x)
+    return cell * voltage_unity_curve
 
 
 """calculate the current of each cell"""
@@ -189,3 +187,5 @@ jv_bottom_cell_filtered = Data2D(*read_csv("jv-kp115idtbr-filtered.csv"))
 jv_bottom_cell_corrected = jv_bottom_cell_filtered + (jv_bottom_cell - jv_bottom_cell_filtered) * (1 - correction_factor)
 jv_combined = combine_jv_curves(jv_bottom_cell_filtered, jv_top_cell)
 jv_combined_corrected = combine_jv_curves(jv_bottom_cell_corrected, jv_top_cell_corrected)
+power_combined = jv_to_power(jv_combined)
+power_combined_corrected = jv_to_power(jv_combined_corrected)
