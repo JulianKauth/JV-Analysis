@@ -3,16 +3,17 @@ class Data2D:
         self.x = x
         self.y = y
 
-    def get_y_at(self, searched_x):
+    @staticmethod
+    def get_value_at(x, y, searched_x):
         # if we don't span this range, return 0
-        if searched_x < self.x[0] or searched_x > self.x[-1]:
+        if not x[0] < searched_x < x[-1]:
             return 0
         # if we have the element, return it
-        if searched_x in self.x:
-            return self.y[self.x.index(searched_x)]
+        if searched_x in x:
+            return y[x.index(searched_x)]
         # now we do linear interpolation
         x0, x1, y0, y1 = (0, 0, 0, 0)
-        for x, y in zip(self.x, self.y):
+        for x, y in zip(x, y):
             if x > searched_x:
                 x1, y1 = x, y
                 break
@@ -20,6 +21,12 @@ class Data2D:
         # linear interpolation from wikipedia: https://en.wikipedia.org/wiki/Linear_interpolation
         # y = (y0 * (x1 - x) + y1  * (x - x0))/(x1 - x0)
         return (y0 * (x1 - searched_x) + y1 * (searched_x - x0)) / (x1 - x0)
+
+    def get_y_at(self, searched_x):
+        return self.get_value_at(self.x, self.y, searched_x)
+
+    def get_x_at(self, searched_y):
+        return self.get_value_at(self.y, self.x, searched_y)
 
     def integrate(self):
         summe = 0
@@ -103,8 +110,14 @@ def multiply_eqe_to_solar_spectrum(cell: Data2D, sun: Data2D):
     return Data2D(sun.x, y)
 
 
+def combine_jv_curves(cell_1: Data2D, cell_2: Data2D):
+    x = [x1 + cell_2.get_x_at(y1) for x1, y1 in cell_1.data]
+    return Data2D(x, cell_1.y)
+
+
+"""calculate the current of each cell"""
 cell_size = 0.1e-4  # m^2 to 0.1cm^2
-ampere_to_milli_ampere = 1000  # to convert from Ampere to Milliampere
+ampere_to_milli_ampere = 1000  # to convert from Ampere to milli ampere
 
 solar_spectrum = Data2D(*read_csv("sun_spectrum_direct_circumsolar.csv"))
 solar_spectrum_converted = solar_energy_to_photon_count_to_charge(solar_spectrum)
@@ -124,16 +137,21 @@ top_cell_current = multiply_eqe_to_solar_spectrum(eqe_top_cell, solar_spectrum_c
 top_cell_current_integrated = top_cell_current.integrate()
 print(f"{top_cell_current_integrated=}")
 
+"""calculate the correction factor needed to match currents"""
 # we were given the following to calculate the thickness correction factor for the top cell:
 # P3HT*x = KP115filtered + (KP115-KP115filtered)*(1-x)
 # => P*x = Kf + (K - Kf) * (1-x)
 # => x = K / (P + K + Kf)
-x = bottom_cell_current_integrated / (top_cell_current_integrated + bottom_cell_current_integrated + bottom_cell_filtered_current_integrated)
-print(f"{x=}")
+correction_factor = bottom_cell_current_integrated / (top_cell_current_integrated + bottom_cell_current_integrated + bottom_cell_filtered_current_integrated)
+print(f"{correction_factor=}")
 
-top_cell_current_scaled = top_cell_current * x
+top_cell_current_scaled = top_cell_current * correction_factor
 print(f"{top_cell_current_scaled.integrate()=}")
-bottom_cell_current_scaled = bottom_cell_filtered_current + (bottom_cell_current - bottom_cell_filtered_current) * (1 - x)
+bottom_cell_current_scaled = bottom_cell_filtered_current + (bottom_cell_current - bottom_cell_filtered_current) * (1 - correction_factor)
 print(f"{bottom_cell_current_scaled.integrate()=}")
 
-assert bottom_cell_current == bottom_cell_filtered_current + (bottom_cell_current - bottom_cell_filtered_current)
+"""get and sum JV curves"""
+jv_top_cell = Data2D(*read_csv("jv-p3htpcbm.csv"))
+jv_bottom_cell = Data2D(*read_csv("jv-kp115idtbr.csv"))
+jv_bottom_cell_filtered = Data2D(*read_csv("jv-kp115idtbr-filtered.csv"))
+jv_combined = combine_jv_curves(jv_bottom_cell_filtered, jv_top_cell)
