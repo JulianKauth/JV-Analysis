@@ -1,7 +1,7 @@
 class Data2D:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = list(x).copy()
+        self.y = list(y).copy()
 
     @staticmethod
     def get_value_at(x, y, searched_x):
@@ -35,6 +35,10 @@ class Data2D:
             height = (self.y[i + 1] + self.y[i]) / 2
             summe += width * height
         return summe
+
+    def peak_y(self):
+        peak = min(self.y)  # min instead of max, because positive voltage * negative current = negative power peak
+        return self.x[self.y.index(peak)], peak
 
     @property
     def data(self):
@@ -189,3 +193,5 @@ jv_combined = combine_jv_curves(jv_bottom_cell_filtered, jv_top_cell)
 jv_combined_corrected = combine_jv_curves(jv_bottom_cell_corrected, jv_top_cell_corrected)
 power_combined = jv_to_power(jv_combined)
 power_combined_corrected = jv_to_power(jv_combined_corrected)
+print(f"{power_combined.peak_y()=} mW/cm²")
+print(f"{power_combined_corrected.peak_y()=} mW/cm²")

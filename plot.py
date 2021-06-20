@@ -1,6 +1,9 @@
 from matplotlib import pyplot as plt
 from data import *
 
+args = {"linewidth": 2.5, "linestyle": "dotted"}
+args_corrected = {"linewidth": 2.5, "linestyle": "solid"}
+
 
 def beautify_axis(ax, shift):
     ax.spines["right"].set_position(("axes", shift))
@@ -122,9 +125,6 @@ def plot_jv_combined():
     plt.xlabel(r"Voltage [$V$]")
     plt.ylabel(r"Current [$\frac{mA}{cm^2}$]")
 
-    args = {"linewidth": 2.5, "linestyle": "dotted"}
-    args_corrected = {"linewidth": 2.5, "linestyle": "solid"}
-
     plt.ylim(-15, 5)
     plt.title("JV-Curves combined")
     plt.plot(*jv_combined.plot_data, **args, label="Combined", color="#010101")
@@ -139,10 +139,37 @@ def plot_jv_combined():
     plt.close("all")
 
 
+def plot_jv_power():
+    fig, ax = plt.subplots()
+    ax.grid(True, which='both')
+    ax.axhline(y=0, color='k')
+    ax.axvline(x=0, color='k')
+    ax.set_xlabel(r"Voltage [$V$]")
+    ax.set_ylabel(r"Current [$\frac{mA}{cm^2}$]")
+
+    power = ax.twinx()
+    power.set_ylabel(r"Power [$\frac{mW}{cm^2}$]")
+    power.set_ylim(-5, 3)
+    a, = power.plot(*power_combined.plot_data, **args, color="red", label="Combined Power")
+    b, = power.plot(*power_combined_corrected.plot_data, **args_corrected, color="red", label="Combined Power (corrected)")
+
+    ax.set_ylim(-5, 3)
+    c, = ax.plot(*jv_combined.plot_data, **args, label="Combined JV", color="#010101")
+    d, = ax.plot(*jv_combined_corrected.plot_data, **args_corrected, label="Combined JV (corrected)", color="#010101")
+
+    lines = [a, b, c, d]
+    plt.legend(lines, [line.get_label() for line in lines], framealpha=0.85)
+    fig.tight_layout()
+
+    plt.show()
+    plt.close("all")
+
+
 if __name__ == '__main__':
-    #plot_eqe()
-    plot_solar_spectrum()
-    #plot_currents()
-    #plot_thickness_adjusted_current()
-    #plot_jv_separate()
-    plot_jv_combined()
+    # plot_eqe()
+    # plot_solar_spectrum()
+    # plot_currents()
+    # plot_thickness_adjusted_current()
+    # plot_jv_separate()
+    # plot_jv_combined()
+    plot_jv_power()
