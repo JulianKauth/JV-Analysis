@@ -172,5 +172,5 @@ if __name__ == '__main__':
     # plot_currents()
     # plot_thickness_adjusted_current()
     # plot_jv_separate()
-    plot_jv_combined()
+    # plot_jv_combined()
     plot_jv_power()

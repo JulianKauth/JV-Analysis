@@ -140,6 +140,6 @@ def combine_jv_curves(c1: Data2D, c2: Data2D):
     return Data2D(summe.y, summe.x)
 
 
-def jv_to_power(cell):
+def jv_to_power(cell: Data2D):
     voltage_unity_curve = Data2D(cell.x, cell.x)
     return cell * voltage_unity_curve
