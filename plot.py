@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from data import *
+from main import *
 
 args = {"linewidth": 2.5, "linestyle": "dotted"}
 args_corrected = {"linewidth": 2.5, "linestyle": "solid"}
@@ -146,6 +146,7 @@ def plot_jv_power():
     ax.axvline(x=0, color='k')
     ax.set_xlabel(r"Voltage [$V$]")
     ax.set_ylabel(r"Current [$\frac{mA}{cm^2}$]")
+    ax.set_xlim(-0.5, 1.6)
 
     power = ax.twinx()
     power.set_ylabel(r"Power [$\frac{mW}{cm^2}$]")
@@ -158,7 +159,7 @@ def plot_jv_power():
     d, = ax.plot(*jv_combined_corrected.plot_data, **args_corrected, label="Combined JV (corrected)", color="#010101")
 
     lines = [a, b, c, d]
-    plt.legend(lines, [line.get_label() for line in lines], framealpha=0.85)
+    plt.legend(lines, [line.get_label() for line in lines], framealpha=0.85, loc="upper center")
     fig.tight_layout()
 
     plt.show()
@@ -171,5 +172,5 @@ if __name__ == '__main__':
     # plot_currents()
     # plot_thickness_adjusted_current()
     # plot_jv_separate()
-    # plot_jv_combined()
+    plot_jv_combined()
     plot_jv_power()
