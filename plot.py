@@ -1,6 +1,11 @@
 from matplotlib import pyplot as plt
 from main import *
 
+plt.rcParams['figure.figsize'] = [12.0, 6.75]
+plt.rcParams['figure.dpi'] = 200
+
+show_figure = False
+
 alpha = {"framealpha": 0.85}
 dotted = {"linewidth": 2.5, "linestyle": "dotted"}
 solid = {"linewidth": 2.5, "linestyle": "solid"}
@@ -8,6 +13,14 @@ color_bottom_cell = {"color": "red"}  # "#a02020"
 color_bottom_cell_filtered = {"color": "limegreen"}
 color_top_cell = {"color": "blue"}  # "#0020a0"
 color_combined = {"color": "black"}  # "#010101"
+
+
+def show_or_save(filename):
+    if show_figure:
+        plt.show()
+    else:
+        plt.savefig(filename, bbox_inches='tight')
+    plt.close("all")
 
 
 def beautify_axis(ax, shift):
@@ -31,9 +44,7 @@ def plot_eqe():
     plt.plot(eqe_top_cell.x, eqe_top_cell.y, label="EQE Top Cell", **color_top_cell, **dotted)
     plt.legend(**alpha)
 
-    plt.savefig('plot_eqe.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_eqe.png")
 
 
 def plot_solar_spectrum():
@@ -44,9 +55,7 @@ def plot_solar_spectrum():
     plt.ylabel(r"Incident Power [$\frac{W}{nm \cdot m^2}$]")
     plt.plot(solar_spectrum.x, solar_spectrum.y, **solid)
 
-    plt.savefig('plot_solar_spectrum.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_solar_spectrum.png")
 
 
 def plot_solar_spectra():
@@ -81,9 +90,7 @@ def plot_solar_spectra():
     lines = [sun, sun_converted, current]
     plt.legend(lines, [line.get_label() for line in lines], framealpha=0.85)
     fig.tight_layout()
-    plt.savefig('plot_solar_spectra.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_solar_spectra.png")
 
 
 def plot_currents():
@@ -100,9 +107,7 @@ def plot_currents():
     plt.plot(*top_cell_current_scaled.plot_data, label="Top Cell (corrected)", **color_top_cell, **solid)
     plt.legend(**alpha)
 
-    plt.savefig('plot_currents.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_currents.png")
 
 
 def plot_thickness_adjusted_current():
@@ -116,9 +121,7 @@ def plot_thickness_adjusted_current():
     plt.plot(*top_cell_current_scaled.plot_data, label="Top Cell (corrected)", **color_top_cell, **solid)
     plt.legend(**alpha)
 
-    plt.savefig('plot_currents_adjusted.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_currents_adjusted.png")
 
 
 def plot_jv_given():
@@ -136,9 +139,7 @@ def plot_jv_given():
     plt.plot(*jv_top_cell.plot_data, label="Top Cell", **color_top_cell, **dotted)
     plt.legend(**alpha)
 
-    plt.savefig('plot_jv_given.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_jv_given.png")
 
 
 def plot_jv_separate():
@@ -158,9 +159,7 @@ def plot_jv_separate():
     plt.plot(*jv_top_cell_corrected.plot_data, label="Top Cell (corrected)", **color_top_cell, **solid)
     plt.legend(**alpha)
 
-    plt.savefig('plot_jv.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_jv.png")
 
 
 def plot_jv_combined():
@@ -181,9 +180,7 @@ def plot_jv_combined():
     plt.plot(*jv_top_cell_corrected.plot_data, label="Top Cell (corrected)", **color_top_cell, **solid)
     plt.legend(**alpha)
 
-    plt.savefig('plot_jv_combined.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_jv_combined.png")
 
 
 def plot_jv_power():
@@ -210,9 +207,7 @@ def plot_jv_power():
     plt.legend(lines, [line.get_label() for line in lines], framealpha=0.85, loc="upper center")
     fig.tight_layout()
 
-    plt.savefig('plot_power.png', bbox_inches='tight')
-    plt.show()
-    plt.close("all")
+    show_or_save("plot_power.png")
 
 
 if __name__ == '__main__':
