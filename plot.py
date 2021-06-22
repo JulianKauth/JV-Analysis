@@ -1,7 +1,8 @@
 from matplotlib import pyplot as plt
 from main import *
 
-plt.rcParams['figure.figsize'] = [12.0, 6.75]
+plt.rcParams['figure.figsize'] = [12.0, 6]
+# plt.rcParams['figure.figsize'] = [9, 7]
 plt.rcParams['figure.dpi'] = 200
 
 show_figure = False
@@ -23,6 +24,10 @@ def show_or_save(filename):
     plt.close("all")
 
 
+def sum_current(curr):
+    return r" ($\Sigma$" + f" {curr:0.2f} " + r"$\frac{A}{cm^2}$)"
+
+
 def beautify_axis(ax, shift):
     ax.spines["right"].set_position(("axes", shift))
     ax.set_frame_on(True)
@@ -39,9 +44,9 @@ def plot_eqe():
     plt.title("EQE Spectra")
     plt.xlabel(r"Wavelength [$nm$]")
     plt.ylabel(r"EQE [%]")
-    plt.plot(eqe_bottom_cell.x, eqe_bottom_cell.y, label="EQE Bottom Cell", **color_bottom_cell_filtered, **dotted)
-    plt.plot(eqe_bottom_cell_filtered.x, eqe_bottom_cell_filtered.y, label="EQE Bottom Cell (filtered)", **color_bottom_cell, **dotted)
-    plt.plot(eqe_top_cell.x, eqe_top_cell.y, label="EQE Top Cell", **color_top_cell, **dotted)
+    plt.plot(eqe_bottom_cell.x, eqe_bottom_cell.y, label="Bottom Cell", **color_bottom_cell_filtered, **dotted)
+    plt.plot(eqe_bottom_cell_filtered.x, eqe_bottom_cell_filtered.y, label="Bottom Cell (filtered)", **color_bottom_cell, **dotted)
+    plt.plot(eqe_top_cell.x, eqe_top_cell.y, label="Top Cell", **color_top_cell, **dotted)
     plt.legend(**alpha)
 
     show_or_save("plot_eqe.png")
@@ -53,7 +58,7 @@ def plot_solar_spectrum():
     plt.title("Given Solar Spectrum")
     plt.xlabel(r"Wavelength [$nm$]")
     plt.ylabel(r"Incident Power [$\frac{W}{nm \cdot m^2}$]")
-    plt.plot(solar_spectrum.x, solar_spectrum.y, **solid)
+    plt.plot(solar_spectrum.x, solar_spectrum.y, **solid, **color_combined)
 
     show_or_save("plot_solar_spectrum.png")
 
@@ -80,20 +85,37 @@ def plot_solar_spectra():
     sun_converted.set_ylim(0, 1.3)
     sun_converted, = sun_converted.plot(solar_spectrum_converted.x, solar_spectrum_converted.y, label="Solar Spectrum Converted", **color_bottom_cell_filtered, **solid)
 
-    current = host.twinx()
-    beautify_axis(current, 1.2)
-    current.set_ylabel(r"Bottom Cell Current [$\frac{mA}{nm \cdot cm^2}$]")
-    current.yaxis.label.set_color("blue")
-    current.set_ylim(0, 0.04)
-    current, = current.plot(bottom_cell_current.x, bottom_cell_current.y, label="Bottom Cell Current", **color_top_cell, **solid)
+    # current = host.twinx()
+    # beautify_axis(current, 1.2)
+    # current.set_ylabel(r"Bottom Cell Current [$\frac{mA}{nm \cdot cm^2}$]")
+    # current.yaxis.label.set_color("blue")
+    # current.set_ylim(0, 0.04)
+    # current, = current.plot(bottom_cell_current.x, bottom_cell_current.y, label="Bottom Cell Current", **color_top_cell, **solid)
 
-    lines = [sun, sun_converted, current]
+    # lines = [sun, sun_converted, current]
+    lines = [sun, sun_converted]
     plt.legend(lines, [line.get_label() for line in lines], framealpha=0.85)
     fig.tight_layout()
     show_or_save("plot_solar_spectra.png")
 
 
 def plot_currents():
+    """plot the current distribution of the cells over wavelength"""
+
+    plt.xlim(280, 900)
+    plt.ylim(0, 0.045)
+    plt.title("Current Spectra")
+    plt.xlabel(r"Wavelength [$nm$]")
+    plt.ylabel(r"Current [$\frac{mA}{nm \cdot cm^2}$]")
+    plt.plot(*bottom_cell_current.plot_data, label="Bottom Cell" + sum_current(bottom_cell_current_integrated), **color_bottom_cell_filtered, **dotted)
+    plt.plot(*bottom_cell_filtered_current.plot_data, label=f"Bottom Cell (filtered)" + sum_current(bottom_cell_filtered_current_integrated), **color_bottom_cell, **dotted)
+    plt.plot(*top_cell_current.plot_data, label=f"Top Cell" + sum_current(top_cell_current_integrated), **color_top_cell, **dotted)
+    plt.legend(**alpha)
+
+    show_or_save("plot_currents.png")
+
+
+def plot_currents_combined():
     """plot the current distribution of the cells over wavelength"""
     plt.xlim(280, 900)
     plt.ylim(0, 0.045)
@@ -107,7 +129,7 @@ def plot_currents():
     plt.plot(*top_cell_current_scaled.plot_data, label="Top Cell (corrected)", **color_top_cell, **solid)
     plt.legend(**alpha)
 
-    show_or_save("plot_currents.png")
+    show_or_save("plot_currents_combined.png")
 
 
 def plot_thickness_adjusted_current():
@@ -117,8 +139,8 @@ def plot_thickness_adjusted_current():
     plt.title("Current Spectra of Adjusted Cells")
     plt.xlabel(r"Wavelength [$nm$]")
     plt.ylabel(r"Current [$\frac{mA}{nm \cdot cm^2}$]")
-    plt.plot(*bottom_cell_current_scaled.plot_data, label="Bottom Cell (filtered, corrected)", **color_bottom_cell, **solid)
-    plt.plot(*top_cell_current_scaled.plot_data, label="Top Cell (corrected)", **color_top_cell, **solid)
+    plt.plot(*bottom_cell_current_scaled.plot_data, label="Bottom Cell (filtered, corrected)" + sum_current(bottom_cell_current_scaled.integrate()), **color_bottom_cell, **solid)
+    plt.plot(*top_cell_current_scaled.plot_data, label="Top Cell (corrected)" + sum_current(top_cell_current_scaled.integrate()), **color_top_cell, **solid)
     plt.legend(**alpha)
 
     show_or_save("plot_currents_adjusted.png")
@@ -215,6 +237,7 @@ if __name__ == '__main__':
     plot_solar_spectrum()
     plot_solar_spectra()
     plot_currents()
+    plot_currents_combined()
     plot_thickness_adjusted_current()
     plot_jv_given()
     plot_jv_separate()
