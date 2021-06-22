@@ -1,8 +1,10 @@
 from bokeh.layouts import layout
-from bokeh.models import Div, RangeSlider, Spinner
+from bokeh.models import Div, RangeSlider, Spinner, CheckboxGroup, Toggle
 from bokeh.plotting import figure, show
 
 from main import *
+# tutorial_ https://docs.bokeh.org/en/latest/docs/first_steps/first_steps_9.html
+# docs: https://docs.bokeh.org/en/latest/docs/user_guide/styling.html
 
 """
 fig, ax = plt.subplots()
@@ -26,13 +28,8 @@ plt.show()
 plt.close("all")
 """
 
-
-# prepare some data
-x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-y = [4, 5, 5, 7, 2, 6, 4, 9, 1, 3]
-
 # create plot with circle glyphs
-p = figure(y_range=(-15, 5), x_range=(-1, 1), plot_width=500, plot_height=250)
+p = figure(plot_width=1000, plot_height=600, sizing_mode="stretch_both")
 a = p.line(x=jv_combined.x, y=jv_combined.y, legend_label="Combined")
 b = p.line(x=jv_combined_corrected.x, y=jv_combined_corrected.y, legend_label="Combined (corrected)")
 c = p.line(x=jv_bottom_cell_filtered.x, y=jv_bottom_cell_filtered.y, legend_label="Bottom Cell")
@@ -40,44 +37,42 @@ d = p.line(x=jv_bottom_cell_corrected.x, y=jv_bottom_cell_corrected.y, legend_la
 e = p.line(x=jv_top_cell.x, y=jv_top_cell.y, legend_label="Top Cell")
 f = p.line(x=jv_top_cell_corrected.x, y=jv_top_cell_corrected.y, legend_label="Top Cell (corrected)")
 
-# set up textarea (div)
-#div = Div(
-#    text="""
-#          <p>Select the circle's size using this control element:</p>
-#          """,
-#    width=200,
-#    height=30,
-#)
-
-# set up spinner
-#spinner = Spinner(
-#    title="Circle size",
-#    low=0,
-#    high=60,
-#    step=5,
-#    value=points.glyph.size,
-#    width=200,
-#)
-#spinner.js_link("value", points.glyph, "size")
-
 # set up RangeSlider
-range_slider = RangeSlider(
-    title="Adjust x-axis range",
-    start=0,
-    end=10,
-    step=1,
-    value=(p.x_range.start, p.x_range.end),
-)
-range_slider.js_link("value", p.x_range, "start", attr_selector=0)
-range_slider.js_link("value", p.x_range, "end", attr_selector=1)
+#range_slider = RangeSlider(
+#    title="Adjust x-axis range",
+#    start=0,
+#    end=10,
+#    step=1,
+#    value=(p.x_range.start, p.x_range.end),
+#)
+#range_slider.js_link("value", p.x_range, "start", attr_selector=0)
+#range_slider.js_link("value", p.x_range, "end", attr_selector=1)
+
+toggle_a = Toggle(label="a", active=True)
+toggle_a.js_link("active", a, "visible")
+toggle_b = Toggle(label="b", active=True)
+toggle_b.js_link("active", b, "visible")
+toggle_c = Toggle(label="c", active=True)
+toggle_c.js_link("active", c, "visible")
+toggle_d = Toggle(label="d", active=True)
+toggle_d.js_link("active", d, "visible")
+toggle_e = Toggle(label="e", active=True)
+toggle_e.js_link("active", e, "visible")
+toggle_f = Toggle(label="f", active=True)
+toggle_f.js_link("active", f, "visible")
 
 # create layout
 layout = layout(
     [
-        [range_slider],
-        [p],
+        [toggle_a, p],
+        [toggle_b],
+        [toggle_c],
+        [toggle_d],
+        [toggle_e],
+        [toggle_f]
     ]
 )
 
 # show result
 show(layout)
+
